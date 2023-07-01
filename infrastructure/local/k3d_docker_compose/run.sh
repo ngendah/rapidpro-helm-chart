@@ -67,7 +67,7 @@ configs:
       ca_file: "/etc/ssl/certs/ca.crt"
 EOF
 
-sudo k3d cluster create $CLUSTER_NAME --servers=1 --agents=3 --network=$REGISTRY_NETWORK \
+sudo k3d cluster create $CLUSTER_NAME --servers=1 --agents=2 --network=$REGISTRY_NETWORK \
   --volume="$REGISTRY_CONF_DIR/registry.yaml:/etc/rancher/k3s/registries.yaml" \
   --volume="$REGISTRY_CONF_DIR/ca.crt:/etc/ssl/certs/ca.crt"
 
