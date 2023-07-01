@@ -6,3 +6,4 @@ registry-ca
 *.auto.*
 *.build
 *.push
+*.clean

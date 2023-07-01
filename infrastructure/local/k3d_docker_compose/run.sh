@@ -17,6 +17,19 @@ stop_services(){
   sudo k3d cluster delete $CLUSTER_NAME || true
 }
 
+clean_up(){
+  sudo rm -f $KUBECONFIG_DIR/kubeconfig 
+  sudo rm -rf $REGISTRY_CONF_DIR/*
+  sudo rm -rf $POSTGRESQL_CONF_DIR/*
+  if [ ! -f "$SCRIPT_DIR/run.clean" ]; then
+    return 0
+  fi
+  for dir in $(cat $SCRIPT_DIR/run.clean); do
+    sudo rm -rf $dir
+  done
+  sudo rm -f $SCRIPT_DIR/run.clean
+}
+
 # Main program
 #
 if [ ! -d $REGISTRY_CONF_DIR ]; then
@@ -28,9 +41,7 @@ if [ ! -d $POSTGRESQL_CONF_DIR ]; then
 fi
 
 stop_services
-sudo rm -f $KUBECONFIG_DIR/kubeconfig 
-sudo rm -rf $REGISTRY_CONF_DIR/*
-sudo rm -rf $POSTGRESQL_CONF_DIR/*
+clean_up
 
 sudo docker compose -f $SCRIPT_DIR/docker-compose.yaml up --detach --build
 
@@ -73,3 +84,12 @@ sudo k3d cluster create $CLUSTER_NAME --servers=1 --agents=2 --network=$REGISTRY
 
 sudo k3d kubeconfig get $CLUSTER_NAME > $KUBECONFIG_DIR/kubeconfig
 
+case $1 in
+"docker-ca-install")
+  sudo mkdir -p /etc/docker/certs.d/$REGISTRY_IP
+  sudo cp $REGISTRY_CONF_DIR/ca.crt /etc/docker/certs.d/$REGISTRY_IP/
+  echo "/etc/docker/certs.d/$REGISTRY_IP" >> $SCRIPT_DIR/run.clean
+  ;;
+*)
+;;
+esac
