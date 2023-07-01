@@ -19,7 +19,8 @@ push: $(PUSH)
 		touch $*/$@
 
 %.push: %.build
-	$(DOCKER) push $(REGISTRY_DOMAIN)/$(shell jq -r '.tag.name' $*/meta.json):v$(shell jq -r '.tag.version' $*/meta.json)
+	$(DOCKER) push $(REGISTRY_DOMAIN)/$(shell jq -r '.tag.name' $*/meta.json):v$(shell jq -r '.tag.version' $*/meta.json); \
+	touch $*/$@
 
 clean:
 	-rm -r **/*.build **/*.push
