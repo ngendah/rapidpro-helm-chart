@@ -1,0 +1,52 @@
+name: CI tests
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  builds:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: isbang/compose-action@v1.4.1
+
+    - name: Install essentials
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential jq
+        curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+    - name: Run servers
+      run: |
+        ./infrastructure/local/k3d_compose/run.sh install;
+        echo $(cat ./infrastructure/local/k3d_compose/registry.conf.d/passwd) | docker login $(cat ./infrastructure/local/k3d_compose/registry.conf.d/hostip) --username $(cat ./infrastructure/local/k3d_compose/registry.conf.d/username) --password-stdin;
+
+    - name: Build images
+      working-directory: ./images
+      run: |
+        tee registry.json<<EOF
+        {
+          "domain": "$(cat ../infrastructure/local/k3d_compose/registry.conf.d/hostip)"
+        }
+        EOF
+        sudo make -j3
+
+    - name: Test
+      run: |
+        user=$(cat ./infrastructure/local/k3d_compose/registry.conf.d/username);
+        pass=$(cat ./infrastructure/local/k3d_compose/registry.conf.d/passwd);
+        domain=$(cat ./infrastructure/local/k3d_compose/registry.conf.d/hostip);
+        auth=$(echo -n "$user:$pass" | base64);
+        auth_header="Authorization: Basic $auth";
+        curl -sSk -H "$auth_header" https://$domain/v2/_catalog;
+        #result=$(curl -sSk -H "$auth_header" https://$domain/v2/_Catalog | jq '.repositories[]' | wc -l);
+        #echo result
+
+    - name: Clean up
+      run: |
+        ./infrastructure/local/k3d_compose/run.sh stop
+

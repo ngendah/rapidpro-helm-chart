@@ -3,7 +3,8 @@ join-command
 registry-ca
 *.yml
 *.conf.d
-*.auto.*
+*credential*
+*auto*
 *.build
 *.push
 *.clean
