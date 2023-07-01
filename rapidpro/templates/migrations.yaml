@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  labels:
+    app.kubernetes.io/name: migrations
+    app.kubernetes.io/component: migrations
+    app.kubernetes.io/part-of: stack
+{{ include "rapidpro-stack.labels" . | indent 4 }} 
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccount: rapidpro
+      containers:
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        name: migrations 
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        args:
+        - -c
+        - ./migrate.sh
+        envFrom:
+        - secretRef:
+            name: database-connection
+        - secretRef:
+            name: redis-connection
+        - secretRef:
+            name: admin-credentials

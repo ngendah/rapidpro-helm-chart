@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: courier
+  labels:
+    app: courier
+    app.kubernetes.io/name: courier
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/part-of: courier
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: courier
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: courier
+        app.kubernetes.io/name: courier
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: courier
+    spec:
+      serviceAccount: rapidpro
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: courier
+      securityContext:
+        fsGroup: 2000
+      volumes:
+      - name: nginx-conf
+        projected:
+          sources:
+            - configMap:
+                name: courier-nginx 
+      containers:
+      - image: nginx:alpine
+        name: proxy
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.courier.name }}:{{ .Values.stack.courier.version }}
+        name: courier
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        ports:
+        - containerPort: 8080 
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: database-connection
+        - secretRef: 
+            name: redis-connection
+        env:
+        - name: BACKEND_URL
+          value: http://rapidpro-svc:8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: courier-proxy
+  labels:
+    app.kubernetes.io/name: courier-proxy
+    app.kubernetes.io/component: endpoint
+    app.kubernetes.io/part-of: courier
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  selector:
+    app: courier
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+---
+

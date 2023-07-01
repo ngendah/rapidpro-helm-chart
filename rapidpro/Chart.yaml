@@ -1,0 +1,4 @@
+apiVersion: v1
+name: rapidpro-stack
+version: 0.1.0
+appVersion: 7.4.0

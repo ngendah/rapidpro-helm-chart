@@ -1,0 +1,8 @@
+kubeconfig
+join-command
+registry-ca
+*.yml
+*.conf.d
+*.auto.*
+*.build
+*.push

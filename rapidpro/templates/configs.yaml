@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: courier-nginx
+  labels:
+    app: courier-nginx
+    app.kubernetes.io/name: courier-nginx
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: courier
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+data:
+  nginx.conf:  |-
+  {{ .Files.Get "configs/courier.nginx.conf" | nindent 4 }}
+---

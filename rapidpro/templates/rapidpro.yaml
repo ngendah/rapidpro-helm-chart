@@ -1,0 +1,185 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapidpro
+  labels:
+    app: rapidpro
+    app.kubernetes.io/name: rapidpro
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/part-of: rapidpro
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rapidpro
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: rapidpro
+        app.kubernetes.io/name: rapidpro
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: rapidpro
+    spec:
+      serviceAccount: rapidpro
+      topologySpreadConstraints:
+      - maxSkew: 3
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: rapidpro
+      volumes:
+      - name: static-assets
+        emptyDir: {}
+      initContainers:
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        name: static-build1
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - collectstatic
+        - --noinput
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic 
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        name: static-build2
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - compress
+        - --extension=".haml"
+        - --settings=temba.settings_compress
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+      containers:
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        name: rapidpro 
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        args:
+        - -c
+        - ./server.sh
+        envFrom:
+        - secretRef:
+            name: database-connection
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: MAILROOM_URL
+          value: http://mailroom-svc:8090
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapidpro-celery
+  labels:
+    app: rapidpro
+    app.kubernetes.io/name: rapidpro-celery
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/part-of: rapidpro
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rapidpro-celery
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: rapidpro
+        app.kubernetes.io/name: rapidpro-celery
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: rapidpro
+    spec:
+      serviceAccount: rapidpro
+      topologySpreadConstraints:
+      - maxSkew: 3
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: rapidpro-celery
+      containers:
+      - name: celery
+        image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        args:
+        - -c
+        - ./celery.sh
+        envFrom:
+        - secretRef:
+            name: database-connection
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: MAILROOM_URL
+          value: http://mailroom-svc:8090
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rapidpro-svc
+  labels:
+    app: rapidpro
+    app.kubernetes.io/name: rapidpro-svc
+    app.kubernetes.io/component: endpoint
+    app.kubernetes.io/part-of: rapidpro
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app: rapidpro
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8000
+---

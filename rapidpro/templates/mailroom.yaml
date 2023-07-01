@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailroom
+  labels:
+    app: mailroom
+    app.kubernetes.io/name: mailroom
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/part-of: mailroom
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailroom
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: mailroom
+        app.kubernetes.io/name: mailroom
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: mailroom
+    spec:
+      serviceAccount: rapidpro
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: mailroom
+      securityContext:
+        fsGroup: 2000
+      containers:
+      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
+        name: mailroom 
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 101
+          runAsNonRoot: true
+        ports:
+        - containerPort: 8090
+          protocol: TCP
+        envFrom:
+        - secretRef: 
+            name: database-connection
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: BACKEND_URL
+          value: http://rapidpro-svc:8080
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailroom-svc
+  labels:
+    app.kubernetes.io/name: mailroom-svc
+    app.kubernetes.io/component: endpoint
+    app.kubernetes.io/part-of: mailroom
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  selector:
+    app: mailroom
+  ports:
+  - port: 8090
+    targetPort: 8090
+---

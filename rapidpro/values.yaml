@@ -1,0 +1,33 @@
+imageCredentials:
+  registry: 192.168.122.80
+  username: temba
+  password: temba
+  email:
+
+databaseCredentials:
+  pg_user: temba
+  pg_password: temba
+  pg_host: 192.168.122.49
+  pg_db: temba
+  pg_port: 5432
+
+adminCredentials:
+  username: tembo
+  password: tembo
+  email: tembo@nw.net
+
+# This chart will install a redis server
+redis:
+  url: redis://redis:6379
+
+stack:
+  rapidpro: 
+    name: rapidpro 
+    version: v7.4.0
+  courier: 
+    name: courier
+    version: v7.4.0
+  mailroom:
+    name: mailroom
+    version: v7.4.1
+
