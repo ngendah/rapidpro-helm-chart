@@ -1,0 +1,73 @@
+---
+- name: Install etcdctl
+  apt:
+    name: "etcd-client"
+    state: present
+    update_cache: yes
+
+- name: Initialize Kubernetes
+  block:
+  - name: Initialize Kubernetes using kubeadm
+    ansible.builtin.command: >
+      kubeadm init --apiserver-advertise-address={{ ansible_ssh_host }} --pod-network-cidr={{ pod_network_cidr }}
+    args:
+      creates: /etc/kubernetes/admin.conf
+    notify:
+    - Restart kubelet
+
+- name: Generate node join command
+  block:
+  - name: Generate join command
+    ansible.builtin.command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    become: false
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+- name: Setup Kubernetes user
+  block:
+  - name: Setup kubeconfig for user
+    become: false
+    register: user_id
+    ansible.builtin.command: whoami
+
+  - name: Mkdir for user config
+    ansible.builtin.file:
+      path: /home/{{ user_id.stdout }}/.kube
+      state: directory
+      owner: "{{ user_id.stdout }}"
+
+  - name: Setup kubeconfig for user
+    ansible.builtin.copy:
+      force: false
+      src: /etc/kubernetes/admin.conf
+      dest: /home/{{ user_id.stdout }}/.kube/config
+      remote_src: true
+      owner: "{{ user_id.stdout }}"
+      mode: u=rwx,g-rwx,o-rwx
+
+  - name: Download kubeconfig for host user
+    become: false
+    ansible.builtin.fetch:
+      src: /home/{{ user_id.stdout }}/.kube/config
+      dest: ./kubeconfig
+      flat: true
+
+  - name: Add kubectl alias
+    become: false
+    ansible.builtin.lineinfile:
+      path: /home/{{ user_id.stdout }}/.bashrc
+      regexp: "^alias k="
+      line: "alias k=kubectl"
+
+- name: Install Kubernetes feature
+  block:
+  - name: Install Weavenet
+    become: false
+    become_user: "{{ user_id.stdout }}"
+    ansible.builtin.shell: |
+      {{ item }}
+    with_items:
+    - kubectl apply -f https://github.com/weaveworks/weave/releases/download/{{ weavenet_version }}/weave-daemonset-k8s.yaml
+
