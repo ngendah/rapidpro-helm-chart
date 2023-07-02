@@ -1,4 +1,11 @@
 #!/bin/sh
+
+##
+## Copyright (c) 2023 Ngenda Henry
+##
+## For the license information refer to LICENSE.
+##
+
 set -e
 
 # variable definations
