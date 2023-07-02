@@ -1,3 +1,9 @@
+##
+## Copyright (c) 2023 Ngenda Henry
+##
+## For the license information refer to LICENSE.
+##
+
 DOCKER=docker
 SRCS=$(addsuffix .s, rapidpro mailroom courier)
 BUILDS=$(SRCS:.s=.build)

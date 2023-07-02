@@ -9,7 +9,6 @@ RapidPro is an open source platform for visually building interactive messaging 
 
 This chart bootstraps RapidPro on a Kubernetes cluster using the Helm package manager.
 
-
 ## Getting started:
 
 1. Provision a Rapidpro cluster.

@@ -8,3 +8,6 @@ registry-ca
 *.build
 *.push
 *.clean
+
+# Allow
+!**/vm_manual/**/*.yml

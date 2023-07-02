@@ -25,7 +25,3 @@ Build and push images
         make -j3
     ```
 
-Quick note:
-
-The Rapidpro image is large, more than 1 GiB.
-Issues such as container storage limits, network bandwidth/speed will be a few factors to consider.

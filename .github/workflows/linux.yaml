@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-    - f/gh-actions
+    - "*"
 
 jobs:
   builds:
@@ -34,33 +34,48 @@ jobs:
         sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
     - name: Run servers
+      working-directory: ./infrastructure/local/k3d_compose
       run: |
-        ./infrastructure/local/k3d_compose/run.sh install;
-        sudo docker compose -f ./infrastructure/local/k3d_compose/docker-compose.yaml
+        ./run.sh install;
+        sudo docker compose -f ./docker-compose.yaml ps
 
     - name: Build images
       working-directory: ./images
       run: |
-        echo $(cat ../infrastructure/local/k3d_compose/registry.conf.d/passwd) | sudo docker login $(cat ../infrastructure/local/k3d_compose/registry.conf.d/hostip) --username $(cat ../infrastructure/local/k3d_compose/registry.conf.d/username) --password-stdin;
+        registry_conf_d=../infrastructure/local/k3d_compose/registry.conf.d
+        echo $(cat $registry_conf_d/passwd) | sudo docker login $(cat $registry_conf_d/hostip) --username $(cat $registry_conf_d/username) --password-stdin;
         tee registry.json<<EOF
         {
-          "domain": "$(cat ../infrastructure/local/k3d_compose/registry.conf.d/hostip)"
+          "domain": "$(cat $registry_conf_d/hostip)"
         }
         EOF
         sudo make -j$(nproc --all) 
 
-    - name: Test image build and push
+    - name: Test, image build and push
+      working-directory: ./infrastructure/local/k3d_compose
       run: |
-        auth=$(echo -n "$(cat ./infrastructure/local/k3d_compose/registry.conf.d/username):$(cat ./infrastructure/local/k3d_compose/registry.conf.d/passwd)" | base64);
-        result=$(curl -sSk -H "Authorization: Basic $auth" https://$(cat ./infrastructure/local/k3d_compose/registry.conf.d/hostip)/v2/_catalog | jq '.repositories[]' | wc -l);
+        registry_conf_d=./registry.conf.d
+        auth=$(echo -n "$(cat $registry_conf_d/username):$(cat $registry_conf_d/passwd)" | base64);
+        result=$(curl -sSk -H "Authorization: Basic $auth" https://$(cat $registry_conf_d/hostip)/v2/_catalog | jq '.repositories[]' | wc -l);
         [ "$result" -eq "3" ]
 
     - name: Test Rapidpro Helm installation
       run: |
-        helm install --kubeconfig=./infrastructure/local/k3d_compose/kubeconfig rapidpro ./rapidpro
-        kubectl --kubeconfig=./infrastructure/local/k3d_compose/kubeconfig get po
+        registry_conf_d=./infrastructure/local/k3d_compose/registry.conf.d
+        postgres_conf_d=./infrastructure/local/k3d_compose/postgresql.conf.d
+        kubeconfig=./infrastructure/local/k3d_compose/kubeconfig
+        helm install --kubeconfig=$kubeconfig rapidpro ./rapidpro \
+          --set imageCredentials.registry="$(cat $registry_conf_d/hostip)" \
+          --set imageCredentials.username="$(cat $registry_conf_d/username)" \
+          --set imageCredentials.password="$(cat $registry_conf_d/passwd)" \
+          --set databaseCredentials.pg_user="$(cat $postgres_conf_d/username)" \
+          --set databaseCredentials.pg_password="$(cat $postgres_conf_d/passwd)" \
+          --set databaseCredentials.pg_host="$(cat $postgres_conf_d/hostip)" \
+          --set databaseCredentials.pg_db="$(cat $postgres_conf_d/username)" 
+        kubectl --kubeconfig=$kubeconfig get po
 
     - name: Clean up
+      working-directory: ./infrastructure/local/k3d_compose
       run: |
-        ./infrastructure/local/k3d_compose/run.sh stop
+        ./run.sh stop
 
