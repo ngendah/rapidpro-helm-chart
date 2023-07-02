@@ -23,17 +23,17 @@ jobs:
     - name: Run servers
       run: |
         ./infrastructure/local/k3d_compose/run.sh install;
-        echo $(cat ./infrastructure/local/k3d_compose/registry.conf.d/passwd) | docker login $(cat ./infrastructure/local/k3d_compose/registry.conf.d/hostip) --username $(cat ./infrastructure/local/k3d_compose/registry.conf.d/username) --password-stdin;
 
     - name: Build images
       working-directory: ./images
       run: |
+        echo $(cat ../infrastructure/local/k3d_compose/registry.conf.d/passwd) | docker login $(cat ../infrastructure/local/k3d_compose/registry.conf.d/hostip) --username $(cat ../infrastructure/local/k3d_compose/registry.conf.d/username) --password-stdin;
         tee registry.json<<EOF
         {
           "domain": "$(cat ../infrastructure/local/k3d_compose/registry.conf.d/hostip)"
         }
         EOF
-        sudo make -j3
+        sudo make
 
     - name: Test
       run: |
