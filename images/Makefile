@@ -12,6 +12,7 @@ push: $(PUSH)
 
 %.build:
 	$(DOCKER) build \
+		--quiet \
 		--build-arg $(shell echo $* | tr '[a-z]' '[A-Z]')_VERSION=$(shell jq -r '.tag.version' $*/meta.json) \
 		-t "$(shell jq -r '.tag.name' $*/meta.json):v$(shell jq -r '.tag.version' $*/meta.json)" \
 		-t $(REGISTRY_DOMAIN)/$(shell jq -r '.tag.name' $*/meta.json):v$(shell jq -r '.tag.version' $*/meta.json) \
