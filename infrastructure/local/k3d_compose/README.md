@@ -62,4 +62,4 @@ With this setup, you can now easily
 
 2. Deploy Rapidpro helm charts
 
-In case of any issues, checkout the github actions file on this repo `.github/workflows`.
+In case of any issues, checkout the github actions file in this repo `.github/workflows`.
