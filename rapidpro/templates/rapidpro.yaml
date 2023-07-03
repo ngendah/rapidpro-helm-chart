@@ -103,6 +103,16 @@ spec:
         volumeMounts:
         - name: static-assets
           mountPath: /home/rapidpro/app/sitestatic
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
 ---
 apiVersion: apps/v1
 kind: Deployment
