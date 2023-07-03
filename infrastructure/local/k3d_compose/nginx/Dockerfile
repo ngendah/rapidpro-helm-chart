@@ -1,6 +1,6 @@
 FROM nginx:bookworm
 
-RUN set -ex && apt-get update && apt-get install -y apache2-utils iproute2 dnsutils 
+RUN set -ex && apt-get update && apt-get install -y apache2-utils
 COPY ./nginx.conf /etc/nginx/
 COPY entrypoint.sh /
 
