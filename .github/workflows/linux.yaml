@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-    - "*"
+      - master
 
 jobs:
   builds:
@@ -37,7 +37,6 @@ jobs:
       working-directory: ./infrastructure/local/k3d_compose
       run: |
         ./run.sh install;
-        sudo docker compose -f ./docker-compose.yaml ps
 
     - name: Build images
       working-directory: ./images
@@ -49,7 +48,7 @@ jobs:
           "domain": "$(cat $registry_conf_d/hostip)"
         }
         EOF
-        sudo make -j$(nproc --all) 
+        sudo make -j$(nproc --all)
 
     - name: Test, image build and push
       working-directory: ./infrastructure/local/k3d_compose
@@ -71,8 +70,9 @@ jobs:
           --set databaseCredentials.pg_user="$(cat $postgres_conf_d/username)" \
           --set databaseCredentials.pg_password="$(cat $postgres_conf_d/passwd)" \
           --set databaseCredentials.pg_host="$(cat $postgres_conf_d/hostip)" \
-          --set databaseCredentials.pg_db="$(cat $postgres_conf_d/username)" 
-        kubectl --kubeconfig=$kubeconfig get po
+          --set databaseCredentials.pg_db="$(cat $postgres_conf_d/username)"
+        count=$(kubectl --kubeconfig=$kubeconfig get po --no-headers -oname | wc -l);
+        [ "$count" -gt 1 ]
 
     - name: Clean up
       working-directory: ./infrastructure/local/k3d_compose
