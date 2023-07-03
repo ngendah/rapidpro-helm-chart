@@ -14,4 +14,6 @@ until PGPASSFILE=$PASSFILE psql -lqt -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POS
   sleep 5
 done
 
+echo "Starting Rapidpro server user=$(id -u) ..."
+
 poetry run ./manage.py runserver 0.0.0.0:8000

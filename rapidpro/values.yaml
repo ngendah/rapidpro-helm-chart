@@ -1,5 +1,5 @@
 imageCredentials:
-  registry: 172.20.0.3
+  registry: 172.20.0.4
   username: temba
   password: temba
   email:
@@ -7,7 +7,7 @@ imageCredentials:
 databaseCredentials:
   pg_user: temba
   pg_password: temba
-  pg_host: 172.20.0.2
+  pg_host: 172.20.0.3
   pg_db: temba
   pg_port: 5432
 

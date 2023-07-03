@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rapidpro
+  name: rapidpro-app
   labels:
-    app: rapidpro
-    app.kubernetes.io/name: rapidpro
-    app.kubernetes.io/component: deployment
+    app.kubernetes.io/name: rapidpro-app
+    app.kubernetes.io/component: application
     app.kubernetes.io/part-of: rapidpro
 {{ include "rapidpro-stack.labels" . | indent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rapidpro
+      app.kubernetes.io/name: rapidpro-app
+      app.kubernetes.io/component: application
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,8 +22,7 @@ spec:
   template:
     metadata:
       labels:
-        app: rapidpro
-        app.kubernetes.io/name: rapidpro
+        app.kubernetes.io/name: rapidpro-app
         app.kubernetes.io/component: application
         app.kubernetes.io/part-of: rapidpro
     spec:
@@ -34,7 +33,8 @@ spec:
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
-            app: rapidpro
+            app.kubernetes.io/name: rapidpro-app
+            app.kubernetes.io/component: application
       volumes:
       - name: static-assets
         emptyDir: {}
@@ -109,9 +109,8 @@ kind: Deployment
 metadata:
   name: rapidpro-celery
   labels:
-    app: rapidpro
     app.kubernetes.io/name: rapidpro-celery
-    app.kubernetes.io/component: deployment
+    app.kubernetes.io/component: celery
     app.kubernetes.io/part-of: rapidpro
 {{ include "rapidpro-stack.labels" . | indent 4 }}
 spec:
@@ -129,7 +128,7 @@ spec:
       labels:
         app: rapidpro
         app.kubernetes.io/name: rapidpro-celery
-        app.kubernetes.io/component: application
+        app.kubernetes.io/component: celery
         app.kubernetes.io/part-of: rapidpro
     spec:
       serviceAccountName: rapidpro
@@ -169,7 +168,6 @@ kind: Service
 metadata:
   name: rapidpro-svc
   labels:
-    app: rapidpro
     app.kubernetes.io/name: rapidpro-svc
     app.kubernetes.io/component: endpoint
     app.kubernetes.io/part-of: rapidpro
@@ -177,7 +175,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: rapidpro
+    app.kubernetes.io/name: rapidpro-app
+    app.kubernetes.io/component: application
   ports:
   - port: 8080
     protocol: TCP
