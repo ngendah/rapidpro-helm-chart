@@ -27,7 +27,7 @@ spec:
         app.kubernetes.io/component: application
         app.kubernetes.io/part-of: courier
     spec:
-      serviceAccount: rapidpro
+      serviceAccountName: rapidpro
       topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname

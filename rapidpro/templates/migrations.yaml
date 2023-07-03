@@ -12,7 +12,7 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      serviceAccount: rapidpro
+      serviceAccountName: rapidpro
       containers:
       - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: migrations 
