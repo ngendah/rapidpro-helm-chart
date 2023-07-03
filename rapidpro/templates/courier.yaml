@@ -4,16 +4,15 @@ kind: Deployment
 metadata:
   name: courier
   labels:
-    app: courier
     app.kubernetes.io/name: courier
-    app.kubernetes.io/component: deployment
-    app.kubernetes.io/part-of: courier
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: rapidpro
 {{ include "rapidpro-stack.labels" . | indent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: courier
+      app.kubernetes.io/name: courier
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,10 +21,9 @@ spec:
   template:
     metadata:
       labels:
-        app: courier
         app.kubernetes.io/name: courier
-        app.kubernetes.io/component: application
-        app.kubernetes.io/part-of: courier
+        app.kubernetes.io/component: courier
+        app.kubernetes.io/part-of: rapidpro
     spec:
       serviceAccountName: rapidpro
       topologySpreadConstraints:
@@ -34,7 +32,7 @@ spec:
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
-            app: courier
+            app.kubernetes.io/name: courier
       securityContext:
         fsGroup: 2000
       volumes:
@@ -82,7 +80,7 @@ metadata:
 {{ include "rapidpro-stack.labels" . | indent 4 }}
 spec:
   selector:
-    app: courier
+    app.kubernetes.io/name: courier
   ports:
   - name: http
     port: 80
