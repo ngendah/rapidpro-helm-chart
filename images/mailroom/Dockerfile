@@ -12,7 +12,7 @@ RUN set -ex \
     && cp /usr/share/zoneinfo/$TZ /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata \
     && addgroup --system mailroom \
-    && adduser --system --ingroup mailroom mailroom
+    && adduser -u 1001 --system --ingroup mailroom mailroom
 
 USER mailroom
 RUN mkdir -p /home/mailroom/app

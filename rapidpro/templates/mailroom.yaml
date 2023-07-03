@@ -41,7 +41,7 @@ spec:
         name: mailroom 
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 101
+          runAsUser: 1001
           runAsNonRoot: true
         ports:
         - containerPort: 8090

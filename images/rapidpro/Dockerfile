@@ -13,7 +13,7 @@ RUN set -ex \
                 openssl libgeos-dev \
       && npm install -g coffeescript less \
       && addgroup --system rapidpro \
-      && adduser --system --ingroup rapidpro rapidpro
+      && adduser -u 1001 --system --ingroup rapidpro rapidpro
 USER rapidpro
 WORKDIR /home/rapidpro
 RUN set -ex \

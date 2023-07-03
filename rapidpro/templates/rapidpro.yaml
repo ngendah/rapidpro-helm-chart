@@ -43,7 +43,7 @@ spec:
         name: static-build1
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 101
+          runAsUser: 1001
           runAsNonRoot: true
         command:
         - sh
@@ -60,7 +60,7 @@ spec:
         name: static-build2
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 101
+          runAsUser: 1001
           runAsNonRoot: true
         command:
         - sh
@@ -79,7 +79,7 @@ spec:
         name: rapidpro 
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 101
+          runAsUser: 1001
           runAsNonRoot: true
         args:
         - -c
@@ -145,7 +145,7 @@ spec:
         image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 101
+          runAsUser: 1001
           runAsNonRoot: true
         args:
         - -c

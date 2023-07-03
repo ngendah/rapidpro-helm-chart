@@ -12,7 +12,7 @@ RUN set -ex \
     && cp /usr/share/zoneinfo/$TZ /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata \
     && addgroup --system courier \
-    && adduser --system --ingroup courier courier
+    && adduser -u 1001 --system --ingroup courier courier
 
 USER courier
 RUN mkdir -p /home/courier/app
