@@ -51,7 +51,7 @@ spec:
         volumeMounts:
         - name: nginx-conf
           mountPath: /etc/nginx/
-      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.courier.name }}:{{ .Values.stack.courier.version }}
+      - image: {{ .Values.stack.registry }}/{{ .Values.stack.courier.name }}:{{ .Values.stack.courier.version }}
         name: courier
         imagePullPolicy: Always
         securityContext:
@@ -62,7 +62,7 @@ spec:
           protocol: TCP
         envFrom:
         - secretRef:
-            name: database-connection
+            name: {{ .Values.databaseCredentialsSecret }}
         - secretRef: 
             name: redis-connection
         env:

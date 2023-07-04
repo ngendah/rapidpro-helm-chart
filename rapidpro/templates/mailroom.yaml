@@ -37,7 +37,7 @@ spec:
       securityContext:
         fsGroup: 2000
       containers:
-      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
+      - image: {{ .Values.stack.registry }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
         name: mailroom 
         imagePullPolicy: Always
         securityContext:
@@ -48,7 +48,7 @@ spec:
           protocol: TCP
         envFrom:
         - secretRef: 
-            name: database-connection
+            name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:
             name: redis-connection
         env:
