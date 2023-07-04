@@ -25,7 +25,7 @@ metadata:
 {{ include "rapidpro-stack.labels" . | indent 4 }}
 subsets:
   - addresses:
-    - ip: {{ .Values.databaseCredentials.pg_host }}
+    - ip: {{ .Values.database.host }}
     ports:
-    - port: {{ .Values.databaseCredentials.pg_port }}
+    - port: {{ .Values.database.port }}
 ---
