@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+      - f/*
+      - r/*
+      - b/*
 
 jobs:
   builds:
@@ -64,7 +67,7 @@ jobs:
         postgres_conf_d=./infrastructure/local/k3d_compose/postgresql.conf.d
         kubeconfig=./infrastructure/local/k3d_compose/kubeconfig
         helm install --kubeconfig=$kubeconfig rapidpro ./rapidpro \
-          --set stack.registry=$(cat $registry_conf_d/hostip) \
+          --set stack.registry.host=$(cat $registry_conf_d/hostip) \
           --set databaseHost.postgres.host="$(cat $postgres_conf_d/hostip)"
         count=$(kubectl --kubeconfig=$kubeconfig get po --no-headers -oname | wc -l);
         [ "$count" -gt 1 ]

@@ -23,7 +23,8 @@ databaseHost:
     port: 5432
 
 stack:
-  registry: "172.20.0.3"
+  registry: 
+    host: "172.20.0.3"
   rapidpro: 
     name: rapidpro 
     version: v7.4.0

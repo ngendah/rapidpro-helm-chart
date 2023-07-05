@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       serviceAccountName: rapidpro
       containers:
-      - image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: migrations 
         imagePullPolicy: Always
         securityContext:

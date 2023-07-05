@@ -39,7 +39,7 @@ spec:
       - name: static-assets
         emptyDir: {}
       initContainers:
-      - image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: static-build1
         imagePullPolicy: Always
         securityContext:
@@ -56,7 +56,7 @@ spec:
         volumeMounts:
         - name: static-assets
           mountPath: /home/rapidpro/app/sitestatic 
-      - image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: static-build2
         imagePullPolicy: Always
         securityContext:
@@ -75,7 +75,7 @@ spec:
         - name: static-assets
           mountPath: /home/rapidpro/app/sitestatic
       containers:
-      - image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: rapidpro 
         imagePullPolicy: Always
         securityContext:
@@ -153,7 +153,7 @@ spec:
             app.kubernetes.io/name: rapidpro-celery
       containers:
       - name: celery
-        image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+        image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1001
