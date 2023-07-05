@@ -64,13 +64,8 @@ jobs:
         postgres_conf_d=./infrastructure/local/k3d_compose/postgresql.conf.d
         kubeconfig=./infrastructure/local/k3d_compose/kubeconfig
         helm install --kubeconfig=$kubeconfig rapidpro ./rapidpro \
-          --set imageCredentials.registry="$(cat $registry_conf_d/hostip)" \
-          --set imageCredentials.username="$(cat $registry_conf_d/username)" \
-          --set imageCredentials.password="$(cat $registry_conf_d/passwd)" \
-          --set databaseCredentials.pg_user="$(cat $postgres_conf_d/username)" \
-          --set databaseCredentials.pg_password="$(cat $postgres_conf_d/passwd)" \
-          --set databaseCredentials.pg_host="$(cat $postgres_conf_d/hostip)" \
-          --set databaseCredentials.pg_db="$(cat $postgres_conf_d/username)"
+          --set stack.registry=$(cat $registry_conf_d/hostip) \
+          --set databaseHost.postgres.host="$(cat $postgres_conf_d/hostip)"
         count=$(kubectl --kubeconfig=$kubeconfig get po --no-headers -oname | wc -l);
         [ "$count" -gt 1 ]
 

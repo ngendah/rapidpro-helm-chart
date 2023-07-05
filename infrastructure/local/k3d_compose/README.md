@@ -11,6 +11,8 @@ Provision a local infrastructure using k3d and docker compose
 
     For most linux distro its available on the distro package repositories.
 
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+
 ## Steps:
 
 1. Installation: 

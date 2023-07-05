@@ -1,26 +1,29 @@
-imageCredentials:
-  registry: 172.20.0.4
-  username: temba
-  password: temba
-  email:
+imagePullSecrets:
+  - registry
 
-databaseCredentials:
-  pg_user: temba
-  pg_password: temba
-  pg_host: 172.20.0.3
-  pg_db: temba
-  pg_port: 5432
-
-adminCredentials:
-  username: tembo
-  password: tembo
-  email: tembo@nw.net
+# Required keys are:
+# ADMIN_USERNAME
+# ADMIN_PASSWORD
+# ADMIN_EMAIL
+adminCredentialsSecret: admin-credentials
 
 # This chart will install a redis server
 redis:
   url: redis://redis:6379
 
+# Required keys are:
+# POSTGRES_USER
+# POSTGRES_PASSWORD 
+# POSTGRES_DB
+databaseCredentialsSecret: database-credentials
+
+databaseHost:
+  postgres:
+    host: "172.20.0.4"
+    port: 5432
+
 stack:
+  registry: "172.20.0.3"
   rapidpro: 
     name: rapidpro 
     version: v7.4.0

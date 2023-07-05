@@ -27,8 +27,10 @@ if [ "$DB_EXISTS" != "$POSTGRES_DB" ]; then
   PGPASSFILE=$PASSFILE psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -c "CREATE DATABASE $POSTGRES_DB OWNER $POSTGRES_USER;"
 fi
 
-echo "creating admin user ..."
-poetry run ./manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser(\"$ADMIN_USERNAME\", \"$ADMIN_EMAIL\", \"$ADMIN_PASSWORD\")"
+if [ -z "$ADMIN_USERNAME" ] && [ -z "$ADMIN_PASSWORD" ] && [ -z "$ADMIN_EMAIL" ]; then
+  echo "creating admin user ..."
+  poetry run ./manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser(\"$ADMIN_USERNAME\", \"$ADMIN_EMAIL\", \"$ADMIN_PASSWORD\")"
+fi
 
 echo "running migrations, might take a while ..."
 poetry run ./manage.py migrate

@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       serviceAccountName: rapidpro
       containers:
-      - image: {{ .Values.imageCredentials.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.stack.registry }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: migrations 
         imagePullPolicy: Always
         securityContext:
@@ -24,8 +24,10 @@ spec:
         - -c
         - ./migrate.sh
         envFrom:
+        - configMapRef:
+            name: database-host
         - secretRef:
-            name: database-connection
+            name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:
             name: redis-connection
         - secretRef:

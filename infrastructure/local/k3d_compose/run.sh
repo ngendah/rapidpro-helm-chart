@@ -68,13 +68,21 @@ if [ $RETRIES -eq 0 ] && [ ! -f "$REGISTRY_CONF_DIR/ca.crt" ]; then
   exit 1
 fi
 
+POSTGRES_HOSTNAME=$(cat $POSTGRESQL_CONF_DIR/hostname)
+POSTGRES_IP=$(cat $POSTGRESQL_CONF_DIR/hostip)
+POSTGRES_PORT=$(cat $POSTGRESQL_CONF_DIR/hostport)
+POSTGRES_USERNAME=$(cat $POSTGRESQL_CONF_DIR/username)
+POSTGRES_DB=$(cat $POSTGRESQL_CONF_DIR/database)
+POSTGRES_PASSWD=$(cat $POSTGRESQL_CONF_DIR/passwd)
+
 REGISTRY_HOSTNAME=$(cat $REGISTRY_CONF_DIR/hostname)
 REGISTRY_IP=$(cat $REGISTRY_CONF_DIR/hostip)
 REGISTRY_USERNAME=$(cat $REGISTRY_CONF_DIR/username)
 REGISTRY_PASSWD=$(cat $REGISTRY_CONF_DIR/passwd)
+REGISTRY_AUTH=$(echo -n "$REGISTRY_USERNAME:$REGISTRY_PASSWD" | base64)
 REGISTRY_NETWORK=$(sudo docker inspect $REGISTRY_HOSTNAME | jq -r '.[].NetworkSettings.Networks | keys[0]')
 
-cat<<EOF | sudo tee $REGISTRY_CONF_DIR/registry.yaml
+cat<<EOF | sudo tee "$REGISTRY_CONF_DIR/registry.yaml" > /dev/null
 mirrors:
   $REGISTRY_IP:
     endpoint:
@@ -93,7 +101,53 @@ sudo k3d cluster create $CLUSTER_NAME --servers=1 --agents=2 --network=$REGISTRY
   --volume="$REGISTRY_CONF_DIR/registry.yaml:/etc/rancher/k3s/registries.yaml" \
   --volume="$REGISTRY_CONF_DIR/ca.crt:/etc/ssl/certs/ca.crt"
 
+cat<<EOF | sudo tee "$REGISTRY_CONF_DIR/dockerconfig.json" > /dev/null
+{
+  "auths":
+  {
+    "$REGISTRY_IP":
+    {
+      "username": "$REGISTRY_USERNAME",
+      "password": "$REGISTRY_PASSWD",
+      "email": "",
+      "auth": "$REGISTRY_AUTH"
+    }
+  }
+}
+EOF
+
+cat<<EOF | sudo tee "$REGISTRY_CONF_DIR/cluster-config.yaml" > /dev/null
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-credentials
+stringData:
+  POSTGRES_USER: $POSTGRES_USERNAME
+  POSTGRES_PASSWORD: $POSTGRES_PASSWD
+  POSTGRES_DB: $POSTGRES_DB
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-credentials
+stringData:
+  ADMIN_USERNAME: temba
+  ADMIN_PASSWORD: $(openssl rand -hex 12)
+  ADMIN_EMAIL: temba@nw.net
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry
+data:
+  .dockerconfigjson: $(base64 -w0 "$REGISTRY_CONF_DIR/dockerconfig.json")
+type: kubernetes.io/dockerconfigjson
+---
+EOF
+
 sudo k3d kubeconfig get $CLUSTER_NAME > $KUBECONFIG_DIR/kubeconfig
+kubectl --kubeconfig=$KUBECONFIG_DIR/kubeconfig apply -f "$REGISTRY_CONF_DIR/cluster-config.yaml"
 
 if [ "$1" = "install" ]; then
   sudo mkdir -p /etc/docker/certs.d/$REGISTRY_IP

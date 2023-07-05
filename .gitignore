@@ -8,6 +8,6 @@ registry-ca
 *.build
 *.push
 *.clean
-
+images/registry.json
 # Allow
 !**/vm_manual/**/*.yml
