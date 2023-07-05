@@ -24,6 +24,8 @@ spec:
         - -c
         - ./migrate.sh
         envFrom:
+        - configMapRef:
+            name: database-host
         - secretRef:
             name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:

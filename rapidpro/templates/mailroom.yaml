@@ -47,6 +47,8 @@ spec:
         - containerPort: 8090
           protocol: TCP
         envFrom:
+        - configMapRef:
+            name: database-host
         - secretRef: 
             name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:

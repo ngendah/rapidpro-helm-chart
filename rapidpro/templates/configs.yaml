@@ -13,3 +13,17 @@ data:
   nginx.conf:  |-
   {{ .Files.Get "configs/courier.nginx.conf" | nindent 4 }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-host
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: stack
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+data:
+  POSTGRES_HOST: "{{ .Values.databaseHost.postgres.host }}"
+  POSTGRES_PORT: "{{ .Values.databaseHost.postgres.port }}"
+---
+

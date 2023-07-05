@@ -1,17 +1,7 @@
 imagePullSecrets:
   - registry
 
-# The keys
-# POSTGRES_USER
-# POSTGRES_PASSWORD 
-# POSTGRES_DB
-databaseCredentialsSecret: database-credentials
-
-databaseEndpoint:
-  ip: "172.20.0.3"
-  port: 5432
-
-# The keys
+# Required keys are:
 # ADMIN_USERNAME
 # ADMIN_PASSWORD
 # ADMIN_EMAIL
@@ -21,8 +11,19 @@ adminCredentialsSecret: admin-credentials
 redis:
   url: redis://redis:6379
 
+# Required keys are:
+# POSTGRES_USER
+# POSTGRES_PASSWORD 
+# POSTGRES_DB
+databaseCredentialsSecret: database-credentials
+
+databaseHost:
+  postgres:
+    host: "172.20.0.4"
+    port: 5432
+
 stack:
-  registry: "172.20.0.2"
+  registry: "172.20.0.3"
   rapidpro: 
     name: rapidpro 
     version: v7.4.0

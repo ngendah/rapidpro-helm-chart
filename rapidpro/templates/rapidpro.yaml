@@ -85,6 +85,8 @@ spec:
         - -c
         - ./server.sh
         envFrom:
+        - configMapRef:
+            name: database-host
         - secretRef:
             name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:
@@ -160,6 +162,8 @@ spec:
         - -c
         - ./celery.sh
         envFrom:
+        - configMapRef:
+            name: database-host 
         - secretRef:
             name: {{ .Values.databaseCredentialsSecret }}
         - secretRef:
