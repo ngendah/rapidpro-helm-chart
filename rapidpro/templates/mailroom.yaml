@@ -37,7 +37,7 @@ spec:
       securityContext:
         fsGroup: 2000
       containers:
-      - image: {{ .Values.stack.registry }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
+      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
         name: mailroom 
         imagePullPolicy: Always
         securityContext:
