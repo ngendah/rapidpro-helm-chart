@@ -13,7 +13,7 @@ redis:
 
 # Required keys are:
 # POSTGRES_USER
-# POSTGRES_PASSWORD 
+# POSTGRES_PASSWORD
 # POSTGRES_DB
 databaseCredentialsSecret: database-credentials
 
@@ -23,15 +23,63 @@ databaseHost:
     port: 5432
 
 stack:
-  registry: 
+  registry:
     host: "172.20.0.3"
-  rapidpro: 
-    name: rapidpro 
+  rapidpro:
+    name: rapidpro
     version: v7.4.0
-  courier: 
+  courier:
     name: courier
     version: v7.4.0
   mailroom:
     name: mailroom
     version: v7.4.1
 
+# https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  rapidpro:
+    capabilities: {}
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+  courier:
+    capabilities: {}
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+  mailroom:
+    capabilities: {}
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+
+podSecurityContext:
+  rapidpro:
+    fsGroup: 2000
+  courier:
+    fsGroup: 2000
+  mailroom:
+    fsGroup: 2000
+
+imagePullPolicy:
+  rapidpro: Always
+  courier: IfNotPresent
+  mailroom: IfNotPresent
+
+resources:
+  rapidpro:
+    application: {}
+      # limits:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+    celery: {}
+    migrations: {}
+  courier: {}
+  mailroom: {}
+
+# TODO:
+# - topologySpreadConstraints
+# - hpa

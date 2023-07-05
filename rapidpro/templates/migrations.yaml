@@ -13,13 +13,14 @@ spec:
     spec:
       restartPolicy: Never
       serviceAccountName: rapidpro
+      securityContext:
+      {{- toYaml .Values.podSecurityContext.rapidpro | nindent 8 }}
       containers:
       - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: migrations 
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./migrate.sh
@@ -32,3 +33,5 @@ spec:
             name: redis-connection
         - secretRef:
             name: admin-credentials
+        resources:
+        {{- toYaml .Values.resources.rapidpro.migrations | nindent 10 }}

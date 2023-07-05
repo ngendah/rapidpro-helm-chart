@@ -26,6 +26,8 @@ spec:
         app.kubernetes.io/component: application
         app.kubernetes.io/part-of: rapidpro
     spec:
+      securityContext:
+      {{- toYaml .Values.podSecurityContext.rapidpro | nindent 8 }}
       serviceAccountName: rapidpro
       topologySpreadConstraints:
       - maxSkew: 3
@@ -41,10 +43,9 @@ spec:
       initContainers:
       - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: static-build1
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         command:
         - sh
         - -c
@@ -58,7 +59,7 @@ spec:
           mountPath: /home/rapidpro/app/sitestatic 
       - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: static-build2
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
         securityContext:
           runAsUser: 1001
           runAsNonRoot: true
@@ -77,10 +78,9 @@ spec:
       containers:
       - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         name: rapidpro 
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./server.sh
@@ -115,6 +115,8 @@ spec:
             port: 8000
           initialDelaySeconds: 15
           periodSeconds: 20
+        resources:
+        {{- toYaml .Values.resources.rapidpro.application | nindent 10 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -143,6 +145,8 @@ spec:
         app.kubernetes.io/component: celery
         app.kubernetes.io/part-of: rapidpro
     spec:
+      securityContext:
+      {{- toYaml .Values.podSecurityContext.rapidpro | nindent 8 }}
       serviceAccountName: rapidpro
       topologySpreadConstraints:
       - maxSkew: 3
@@ -154,10 +158,9 @@ spec:
       containers:
       - name: celery
         image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./celery.sh
@@ -176,6 +179,8 @@ spec:
             secretKeyRef:
               name: mailroom-token
               key: token
+        resources:
+        {{- toYaml .Values.resources.rapidpro.celery | nindent 10 }}
 ---
 apiVersion: v1
 kind: Service

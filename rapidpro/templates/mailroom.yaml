@@ -35,14 +35,13 @@ spec:
           matchLabels:
             app: mailroom
       securityContext:
-        fsGroup: 2000
+      {{- toYaml .Values.podSecurityContext.mailroom | nindent 8 }}
       containers:
       - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
         name: mailroom 
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.imagePullPolicy.mailroom }}
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.mailroom | nindent 10 }}
         ports:
         - containerPort: 8090
           protocol: TCP
@@ -61,6 +60,8 @@ spec:
             secretKeyRef:
               name: mailroom-token
               key: token
+        resources:
+        {{- toYaml .Values.resources.mailroom | nindent 10 }}
 ---
 apiVersion: v1
 kind: Service
