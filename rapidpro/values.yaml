@@ -35,3 +35,19 @@ stack:
     name: mailroom
     version: v7.4.1
 
+securityContext:
+  rapidpro:
+    capabilities: {}
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001
+  courier:
+    capabilities: {}
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001
+  mailroom:
+    capabilities: {}
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001

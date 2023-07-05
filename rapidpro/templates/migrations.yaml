@@ -18,8 +18,7 @@ spec:
         name: migrations 
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./migrate.sh

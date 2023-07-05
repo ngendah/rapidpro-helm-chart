@@ -55,8 +55,7 @@ spec:
         name: courier
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.courier | nindent 10 }}
         ports:
         - containerPort: 8080 
           protocol: TCP

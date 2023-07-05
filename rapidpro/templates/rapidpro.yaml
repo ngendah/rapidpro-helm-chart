@@ -43,8 +43,7 @@ spec:
         name: static-build1
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         command:
         - sh
         - -c
@@ -79,8 +78,7 @@ spec:
         name: rapidpro 
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./server.sh
@@ -156,8 +154,7 @@ spec:
         image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1001
-          runAsNonRoot: true
+        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
         args:
         - -c
         - ./celery.sh
