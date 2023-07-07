@@ -3,7 +3,7 @@ RapidPro v7 Helm Chart
 
 ![CI Tests](https://github.com/ngendah/rapidpro-k8s/actions/workflows/linux.yaml/badge.svg)
 
-RapidPro is an open source platform for visually building interactive messaging applications. For more on it refer to https://github.com/rapidpro/rapidpro.
+RapidPro is an open source platform for visually building interactive messaging applications. For more refer to https://github.com/rapidpro/rapidpro.
 
 ## Introduction
 
