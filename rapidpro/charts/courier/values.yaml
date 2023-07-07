@@ -1,0 +1,37 @@
+annotations: {}
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 50%
+    maxUnavailable: 25%
+
+labels:
+  pod:
+    app.kubernetes.io/name: courier
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: rapidpro
+
+  selectors:
+    app.kubernetes.io/name: courier
+    app.kubernetes.io/component: courier
+
+topologySpreadConstraints:
+  - maxSkew: 3
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: courier
+        app.kubernetes.io/component: courier
+
+securityContext:
+  capabilities: { }
+  runAsNonRoot: true
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+
+podSecurityContext:
+  fsGroup: 2000
+
+resources: {}

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: {{ .Values.migrations.restartPolicy }}
+      serviceAccountName: {{ .Values.serviceAccoutName }}
+      securityContext:
+        {{- toYaml .Values.migrations.podSecurityContext | nindent 8 }}
+      containers:
+      - image: {{ .Values.global.registry.host }}/{{ .Values.image.name }}:{{ .Values.image.version }}
+        name: migrations 
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.migrations.securityContext | nindent 10 }}
+        args:
+        - -c
+        - ./migrate.sh
+        envFrom:
+        - configMapRef:
+            name: database-host
+        - secretRef:
+            name: {{ .Values.global.databaseCredentialsSecret }}
+        - secretRef:
+            name: redis-connection
+        - secretRef:
+            name: admin-credentials
+        resources:
+          {{- toYaml .Values.migrations.resources | nindent 10 }}
+---

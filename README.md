@@ -19,8 +19,7 @@ This repo provides a chart to bootstraps RapidPro on a Kubernetes cluster using 
 
     c. A container registry
 
-    To help with this, the repo contains a script to provision the cluster using K3D and Docker compose, it's located under `infrastructure/local/k3d_compose`.
-    Refer to its readme to get started on it.
+    To help with this, the repo contains a script to provision the cluster using K3D and Docker compose. It's located in `infrastructure/local/k3d_compose`, refer to its readme to get started on it.
 
 2. Update images container repository url and Helm chart values.
 

@@ -1,102 +1,56 @@
-imagePullSecrets:
-  - registry
+global:
+  imagePullSecrets:
+    - registry
+  
+  # Required keys are:
+  # ADMIN_USERNAME
+  # ADMIN_PASSWORD
+  # ADMIN_EMAIL
+  adminCredentialsSecret: admin-credentials
+  
+  # The chart will install a redis server
+  # TODO add redis chart as a dependency
+  redis:
+    url: redis://redis:6379
+  
+  # Required keys are:
+  # POSTGRES_USER
+  # POSTGRES_PASSWORD
+  # POSTGRES_DB
+  databaseCredentialsSecret: database-credentials
+  
+  databaseHost:
+    postgres:
+      host: "172.20.0.3"
+      port: 5432
+  
+  registry:
+    host: "172.20.0.2"
 
-# Required keys are:
-# ADMIN_USERNAME
-# ADMIN_PASSWORD
-# ADMIN_EMAIL
-adminCredentialsSecret: admin-credentials
-
-# This chart will install a redis server
-redis:
-  url: redis://redis:6379
-
-# Required keys are:
-# POSTGRES_USER
-# POSTGRES_PASSWORD
-# POSTGRES_DB
-databaseCredentialsSecret: database-credentials
-
-databaseHost:
-  postgres:
-    host: "172.20.0.3"
-    port: 5432
-
-registry:
-  host: "172.20.0.2"
+  labels: {}
+  annotations: {}
 
 courier:
   image:
     name: courier
     version: v7.4.0
+    pullPolicy: IfNotPresent
   serviceAccountName: rapidpro
-  securityContext:
-    capabilities: { }
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-  podSecurityContext:
-    fsGroup: 2000
-  imagePullPolicy: IfNotPresent
-  resources: {}
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  replicaCount: 1
 
 mailroom:
   image:
     name: mailroom
     version: v7.4.1
+    pullPolicy: IfNotPresent 
   serviceAccountName: rapidpro
-  securityContext:
-    capabilities: { }
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-  podSecurityContext:
-    fsGroup: 2000
-  imagePullPolicy: IfNotPresent
-  resources: {}
+  replicaCount: 1
 
 rapidpro:
   image:
     name: rapidpro
     version: v7.4.0
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   serviceAccountName: rapidpro
-  app: 
-    securityContext:
-      capabilities: { }
-      runAsNonRoot: true
-      runAsUser: 1001
-      allowPrivilegeEscalation: false
-    podSecurityContext:
-      fsGroup: 2000
-    resources: { }
-  celery: 
-    securityContext:
-      capabilities: { }
-      runAsNonRoot: true
-      runAsUser: 1001
-      allowPrivilegeEscalation: false
-    podSecurityContext:
-      fsGroup: 2000
-    resources: { }
-  migrations:
-    securityContext:
-      capabilities: { }
-      runAsNonRoot: true
-      runAsUser: 1001
-      allowPrivilegeEscalation: false
-    podSecurityContext:
-      fsGroup: 2000
-    resources: { }
-      # limits:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
+  replicaCount: 1
+   

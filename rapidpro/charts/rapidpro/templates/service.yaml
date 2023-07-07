@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rapidpro-svc
+spec:
+  type: ClusterIP
+  selector:
+    {{- toYaml .Values.app.labels.selectors | nindent 4 }}
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8000
+---

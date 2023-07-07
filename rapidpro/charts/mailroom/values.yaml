@@ -1,0 +1,37 @@
+annotations: {}
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 50%
+    maxUnavailable: 25%
+
+labels:
+  pod:
+   app: mailroom
+   app.kubernetes.io/name: mailroom
+   app.kubernetes.io/component: application
+   app.kubernetes.io/part-of: mailroom
+
+  selectors:
+    app: mailroom
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: mailroom
+
+securityContext:
+  capabilities: {}
+  runAsNonRoot: true
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+
+podSecurityContext:
+  fsGroup: 2000
+
+resources: {}
+

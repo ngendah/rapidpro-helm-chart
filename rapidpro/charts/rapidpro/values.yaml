@@ -1,0 +1,106 @@
+annotations: {}
+
+ingress:
+  className: nginx
+
+  labels:
+    app.kubernetes.io/name: rapidpro-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: rapidpro
+
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+  rules: {} # TODO 
+  
+app: 
+  labels:
+    pod:
+      app.kubernetes.io/name: rapidpro-app
+      app.kubernetes.io/component: application
+      app.kubernetes.io/part-of: rapidpro
+    selectors:
+      app.kubernetes.io/name: rapidpro-app
+      app.kubernetes.io/component: application
+
+  topologySpreadConstraints:
+    - maxSkew: 3
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: rapidpro-app
+          app.kubernetes.io/component: application
+
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+
+  securityContext:
+    capabilities: {}
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+
+  podSecurityContext:
+    fsGroup: 2000
+
+  resources: {}
+
+celery: 
+  labels:
+    pod:
+      app.kubernetes.io/name: rapidpro-celery
+      app.kubernetes.io/component: celery
+      app.kubernetes.io/part-of: rapidpro
+
+    selectors:
+      app.kubernetes.io/name: rapidpro-celery
+      app.kubernetes.io/component: celery
+
+  topologySpreadConstraints:
+    - maxSkew: 3
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: rapidpro-celery
+
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+
+  securityContext:
+    capabilities: { }
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+
+  podSecurityContext:
+    fsGroup: 2000
+
+  resources: { }
+
+migrations:
+  restartPolicy: Never
+
+  securityContext:
+    capabilities: { }
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+
+  podSecurityContext:
+    fsGroup: 2000
+
+  resources: { }
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
