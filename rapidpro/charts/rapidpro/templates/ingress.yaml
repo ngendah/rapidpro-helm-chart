@@ -3,14 +3,11 @@ kind: Ingress
 metadata:
   name: rapidpro-ingress
   labels:
-    app.kubernetes.io/name: rapidpro-ingress
-    app.kubernetes.io/component: ingress
-    app.kubernetes.io/part-of: rapidpro
-{{ include "rapidpro-stack.labels" . | indent 4 }}
+    {{- toYaml .Values.ingress.labels | nindent 4 }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
   - http:
       paths:

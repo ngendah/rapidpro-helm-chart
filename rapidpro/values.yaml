@@ -1,85 +1,56 @@
-imagePullSecrets:
-  - registry
-
-# Required keys are:
-# ADMIN_USERNAME
-# ADMIN_PASSWORD
-# ADMIN_EMAIL
-adminCredentialsSecret: admin-credentials
-
-# This chart will install a redis server
-redis:
-  url: redis://redis:6379
-
-# Required keys are:
-# POSTGRES_USER
-# POSTGRES_PASSWORD
-# POSTGRES_DB
-databaseCredentialsSecret: database-credentials
-
-databaseHost:
-  postgres:
-    host: "172.20.0.4"
-    port: 5432
-
-stack:
+global:
+  imagePullSecrets:
+    - registry
+  
+  # Required keys are:
+  # ADMIN_USERNAME
+  # ADMIN_PASSWORD
+  # ADMIN_EMAIL
+  adminCredentialsSecret: admin-credentials
+  
+  # The chart will install a redis server
+  # TODO add redis chart as a dependency
+  redis:
+    url: redis://redis:6379
+  
+  # Required keys are:
+  # POSTGRES_USER
+  # POSTGRES_PASSWORD
+  # POSTGRES_DB
+  databaseCredentialsSecret: database-credentials
+  
+  databaseHost:
+    postgres:
+      host: "172.20.0.3"
+      port: 5432
+  
   registry:
-    host: "172.20.0.3"
-  rapidpro:
-    name: rapidpro
-    version: v7.4.0
-  courier:
+    host: "172.20.0.2"
+
+  labels: {}
+  annotations: {}
+
+courier:
+  image:
     name: courier
     version: v7.4.0
-  mailroom:
+    pullPolicy: IfNotPresent
+  serviceAccountName: rapidpro
+  replicaCount: 1
+
+mailroom:
+  image:
     name: mailroom
     version: v7.4.1
+    pullPolicy: IfNotPresent 
+  serviceAccountName: rapidpro
+  replicaCount: 1
 
-# https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-securityContext:
-  rapidpro:
-    capabilities: {}
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-  courier:
-    capabilities: {}
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-  mailroom:
-    capabilities: {}
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-
-podSecurityContext:
-  rapidpro:
-    fsGroup: 2000
-  courier:
-    fsGroup: 2000
-  mailroom:
-    fsGroup: 2000
-
-imagePullPolicy:
-  rapidpro: Always
-  courier: IfNotPresent
-  mailroom: IfNotPresent
-
-resources:
-  rapidpro:
-    application: {}
-      # limits:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-    celery: {}
-    migrations: {}
-  courier: {}
-  mailroom: {}
-
-# TODO:
-# - topologySpreadConstraints
-# - hpa
+rapidpro:
+  image:
+    name: rapidpro
+    version: v7.4.0
+    pullPolicy: Always
+  serviceAccountName: rapidpro
+  replicaCount: 1
+   

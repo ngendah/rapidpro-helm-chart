@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailroom
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.labels.selectors | nindent 6 }}
+  strategy:
+    {{- toYaml .Values.updateStrategy | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.labels.pod | nindent 8 }}
+        {{- if .Values.global.labels }}
+          {{- toYaml .Values.global.labels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- toYaml .Values.annotations | nindent 8 }}
+        {{- if .Values.global.annotations }}
+          {{- toYaml .Values.global.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.topologySpreadConstraints | nindent 6 }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - image: {{ .Values.global.registry.host }}/{{ .Values.image.name }}:{{ .Values.image.version }}
+        name: mailroom 
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        ports:
+        - containerPort: 8090
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: database-host
+        - secretRef: 
+            name: {{ .Values.global.databaseCredentialsSecret }}
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: BACKEND_URL
+          value: http://rapidpro-svc:8080
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+---

@@ -1,0 +1,110 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapidpro-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.app.labels.selectors | nindent 6 }}
+  strategy:
+    {{- toYaml .Values.app.updateStrategy | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.app.labels.pod | nindent 8 }}
+        {{- if .Values.global.labels }}
+          {{- toYaml .Values.global.labels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- toYaml .Values.app.annotations | nindent 8 }}
+        {{- if .Values.global.annotations }}
+          {{- toYaml .Values.global.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.app.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.app.topologySpreadConstraints | nindent 8 }}
+      volumes:
+      - name: static-assets
+        emptyDir: {}
+      initContainers:
+      - image: {{ .Values.global.registry.host }}/{{ .Values.image.name }}:{{ .Values.image.version }}
+        name: static-build1
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.app.securityContext | nindent 10 }}
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - collectstatic
+        - --noinput
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic 
+      - image: {{ .Values.global.registry.host }}/{{ .Values.image.name }}:{{ .Values.image.version }}
+        name: static-build2
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.app.securityContext | nindent 10 }}
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - compress
+        - --extension=".haml"
+        - --settings=temba.settings_compress
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+      containers:
+      - image: {{ .Values.global.registry.host }}/{{ .Values.image.name }}:{{ .Values.image.version }}
+        name: rapidpro 
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.app.securityContext | nindent 10 }}
+        args:
+        - -c
+        - ./server.sh
+        envFrom:
+        - configMapRef:
+            name: database-host
+        - secretRef:
+            name: {{ .Values.global.databaseCredentialsSecret }}
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: MAILROOM_URL
+          value: http://mailroom-svc:8090
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          {{- toYaml .Values.app.resources | nindent 10 }}
+---
