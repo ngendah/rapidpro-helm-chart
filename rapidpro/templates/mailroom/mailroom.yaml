@@ -26,7 +26,7 @@ spec:
         app.kubernetes.io/component: application
         app.kubernetes.io/part-of: mailroom
     spec:
-      serviceAccountName: rapidpro
+      serviceAccountName: {{ .Values.mailroom.serviceAccountName }}
       topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
@@ -35,13 +35,13 @@ spec:
           matchLabels:
             app: mailroom
       securityContext:
-      {{- toYaml .Values.podSecurityContext.mailroom | nindent 8 }}
+      {{- toYaml .Values.mailroom.podSecurityContext | nindent 8 }}
       containers:
-      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.mailroom.name }}:{{ .Values.stack.mailroom.version }}
+      - image: {{ .Values.registry.host }}/{{ .Values.mailroom.image.name }}:{{ .Values.mailroom.image.version }}
         name: mailroom 
-        imagePullPolicy: {{ .Values.imagePullPolicy.mailroom }}
+        imagePullPolicy: {{ .Values.mailroom.image.pullPolicy }}
         securityContext:
-        {{- toYaml .Values.securityContext.mailroom | nindent 10 }}
+        {{- toYaml .Values.mailroom.securityContext | nindent 10 }}
         ports:
         - containerPort: 8090
           protocol: TCP
@@ -61,21 +61,5 @@ spec:
               name: mailroom-token
               key: token
         resources:
-        {{- toYaml .Values.resources.mailroom | nindent 10 }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mailroom-svc
-  labels:
-    app.kubernetes.io/name: mailroom-svc
-    app.kubernetes.io/component: endpoint
-    app.kubernetes.io/part-of: mailroom
-{{ include "rapidpro-stack.labels" . | indent 4 }}
-spec:
-  selector:
-    app: mailroom
-  ports:
-  - port: 8090
-    targetPort: 8090
+        {{- toYaml .Values.mailroom.resources | nindent 10 }}
 ---

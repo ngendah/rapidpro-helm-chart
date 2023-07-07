@@ -12,15 +12,15 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      serviceAccountName: rapidpro
+      serviceAccountName: {{ .Values.rapidpro.serviceAccoutName }}
       securityContext:
-      {{- toYaml .Values.podSecurityContext.rapidpro | nindent 8 }}
+      {{- toYaml .Values.rapidpro.migrations.podSecurityContext | nindent 8 }}
       containers:
-      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.rapidpro.name }}:{{ .Values.stack.rapidpro.version }}
+      - image: {{ .Values.registry.host }}/{{ .Values.rapidpro.image.name }}:{{ .Values.rapidpro.image.version }}
         name: migrations 
-        imagePullPolicy: {{ .Values.imagePullPolicy.rapidpro }}
+        imagePullPolicy: {{ .Values.rapidpro.image.pullPolicy }}
         securityContext:
-        {{- toYaml .Values.securityContext.rapidpro | nindent 10 }}
+        {{- toYaml .Values.rapidpro.migrations.securityContext | nindent 10 }}
         args:
         - -c
         - ./migrate.sh
@@ -34,4 +34,5 @@ spec:
         - secretRef:
             name: admin-credentials
         resources:
-        {{- toYaml .Values.resources.rapidpro.migrations | nindent 10 }}
+        {{- toYaml .Values.rapidpro.migrations.resources | nindent 10 }}
+---

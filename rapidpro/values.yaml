@@ -19,67 +19,84 @@ databaseCredentialsSecret: database-credentials
 
 databaseHost:
   postgres:
-    host: "172.20.0.4"
+    host: "172.20.0.3"
     port: 5432
 
-stack:
-  registry:
-    host: "172.20.0.3"
-  rapidpro:
-    name: rapidpro
-    version: v7.4.0
-  courier:
+registry:
+  host: "172.20.0.2"
+
+courier:
+  image:
     name: courier
     version: v7.4.0
-  mailroom:
+  serviceAccountName: rapidpro
+  securityContext:
+    capabilities: { }
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+  podSecurityContext:
+    fsGroup: 2000
+  imagePullPolicy: IfNotPresent
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+mailroom:
+  image:
     name: mailroom
     version: v7.4.1
-
-# https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-securityContext:
-  rapidpro:
-    capabilities: {}
+  serviceAccountName: rapidpro
+  securityContext:
+    capabilities: { }
     runAsNonRoot: true
     runAsUser: 1001
     allowPrivilegeEscalation: false
-  courier:
-    capabilities: {}
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-  mailroom:
-    capabilities: {}
-    runAsNonRoot: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-
-podSecurityContext:
-  rapidpro:
+  podSecurityContext:
     fsGroup: 2000
-  courier:
-    fsGroup: 2000
-  mailroom:
-    fsGroup: 2000
+  imagePullPolicy: IfNotPresent
+  resources: {}
 
-imagePullPolicy:
-  rapidpro: Always
-  courier: IfNotPresent
-  mailroom: IfNotPresent
-
-resources:
-  rapidpro:
-    application: {}
+rapidpro:
+  image:
+    name: rapidpro
+    version: v7.4.0
+    pullPolicy: IfNotPresent
+  serviceAccountName: rapidpro
+  app: 
+    securityContext:
+      capabilities: { }
+      runAsNonRoot: true
+      runAsUser: 1001
+      allowPrivilegeEscalation: false
+    podSecurityContext:
+      fsGroup: 2000
+    resources: { }
+  celery: 
+    securityContext:
+      capabilities: { }
+      runAsNonRoot: true
+      runAsUser: 1001
+      allowPrivilegeEscalation: false
+    podSecurityContext:
+      fsGroup: 2000
+    resources: { }
+  migrations:
+    securityContext:
+      capabilities: { }
+      runAsNonRoot: true
+      runAsUser: 1001
+      allowPrivilegeEscalation: false
+    podSecurityContext:
+      fsGroup: 2000
+    resources: { }
       # limits:
       #   cpu: 100m
       #   memory: 128Mi
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
-    celery: {}
-    migrations: {}
-  courier: {}
-  mailroom: {}
-
-# TODO:
-# - topologySpreadConstraints
-# - hpa

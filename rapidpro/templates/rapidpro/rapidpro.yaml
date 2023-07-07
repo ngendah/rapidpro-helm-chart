@@ -1,0 +1,119 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapidpro-app
+  labels:
+    app.kubernetes.io/name: rapidpro-app
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: rapidpro
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rapidpro-app
+      app.kubernetes.io/component: application
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rapidpro-app
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: rapidpro
+    spec:
+      securityContext:
+      {{- toYaml .Values.rapidpro.app.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.rapidpro.serviceAccountName }}
+      topologySpreadConstraints:
+      - maxSkew: 3
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: rapidpro-app
+            app.kubernetes.io/component: application
+      volumes:
+      - name: static-assets
+        emptyDir: {}
+      initContainers:
+      - image: {{ .Values.registry.host }}/{{ .Values.rapidpro.image.name }}:{{ .Values.rapidpro.image.version }}
+        name: static-build1
+        imagePullPolicy: {{ .Values.rapidpro.image.pullPolicy }}
+        securityContext:
+        {{- toYaml .Values.rapidpro.app.securityContext | nindent 10 }}
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - collectstatic
+        - --noinput
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic 
+      - image: {{ .Values.registry.host }}/{{ .Values.rapidpro.image.name }}:{{ .Values.rapidpro.image.version }}
+        name: static-build2
+        imagePullPolicy: {{ .Values.rapidpro.image.pullPolicy }}
+        securityContext:
+        {{- toYaml .Values.rapidpro.app.securityContext | nindent 10 }}
+        command:
+        - sh
+        - -c
+        - poetry run ./manage.py
+        args:
+        - compress
+        - --extension=".haml"
+        - --settings=temba.settings_compress
+        - --verbosity=0
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+      containers:
+      - image: {{ .Values.registry.host }}/{{ .Values.rapidpro.image.name }}:{{ .Values.rapidpro.image.version }}
+        name: rapidpro 
+        imagePullPolicy: {{ .Values.rapidpro.imagePullPolicy }}
+        securityContext:
+        {{- toYaml .Values.rapidpro.app.securityContext | nindent 10 }}
+        args:
+        - -c
+        - ./server.sh
+        envFrom:
+        - configMapRef:
+            name: database-host
+        - secretRef:
+            name: {{ .Values.databaseCredentialsSecret }}
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: MAILROOM_URL
+          value: http://mailroom-svc:8090
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        volumeMounts:
+        - name: static-assets
+          mountPath: /home/rapidpro/app/sitestatic
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+        {{- toYaml .Values.rapidpro.app.resources | nindent 10 }}
+---

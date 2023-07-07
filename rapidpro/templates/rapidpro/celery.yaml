@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapidpro-celery
+  labels:
+    app.kubernetes.io/name: rapidpro-celery
+    app.kubernetes.io/component: celery
+    app.kubernetes.io/part-of: rapidpro
+{{ include "rapidpro-stack.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rapidpro-celery
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: rapidpro
+        app.kubernetes.io/name: rapidpro-celery
+        app.kubernetes.io/component: celery
+        app.kubernetes.io/part-of: rapidpro
+    spec:
+      securityContext:
+      {{- toYaml .Values.rapidpro.celery.podSecurityContext | nindent 8 }}
+      serviceAccountName: rapidpro
+      topologySpreadConstraints:
+      - maxSkew: 3
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: rapidpro-celery
+      containers:
+      - name: celery
+        image: {{ .Values.registry.host }}/{{ .Values.rapidpro.image.name }}:{{ .Values.rapidpro.image.version }}
+        imagePullPolicy: {{ .Values.rapidpro.image.pullPolicy }}
+        securityContext:
+        {{- toYaml .Values.rapidpro.celery.securityContext | nindent 10 }}
+        args:
+        - -c
+        - ./celery.sh
+        envFrom:
+        - configMapRef:
+            name: database-host
+        - secretRef:
+            name: {{ .Values.databaseCredentialsSecret }}
+        - secretRef:
+            name: redis-connection
+        env:
+        - name: MAILROOM_URL
+          value: http://mailroom-svc:8090
+        - name: MAILROOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mailroom-token
+              key: token
+        resources:
+        {{- toYaml .Values.rapidpro.celery.resources | nindent 10 }}
+---

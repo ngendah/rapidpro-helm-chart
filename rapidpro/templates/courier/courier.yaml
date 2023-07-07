@@ -25,7 +25,7 @@ spec:
         app.kubernetes.io/component: courier
         app.kubernetes.io/part-of: rapidpro
     spec:
-      serviceAccountName: rapidpro
+      serviceAccountName: {{ .Values.courier.serviceAccountName }}
       topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
@@ -34,7 +34,7 @@ spec:
           matchLabels:
             app.kubernetes.io/name: courier
       securityContext:
-      {{- toYaml .Values.podSecurityContext.courier | nindent 8 }}
+      {{- toYaml .Values.courier.podSecurityContext | nindent 8 }}
       volumes:
       - name: nginx-conf
         projected:
@@ -51,11 +51,11 @@ spec:
         volumeMounts:
         - name: nginx-conf
           mountPath: /etc/nginx/
-      - image: {{ .Values.stack.registry.host }}/{{ .Values.stack.courier.name }}:{{ .Values.stack.courier.version }}
+      - image: {{ .Values.registry.host }}/{{ .Values.courier.image.name }}:{{ .Values.courier.image.version }}
         name: courier
-        imagePullPolicy: {{ .Values.imagePullPolicy.courier }}
+        imagePullPolicy: {{ .Values.courier.image.pullPolicy }}
         securityContext:
-        {{- toYaml .Values.securityContext.courier | nindent 10 }}
+        {{- toYaml .Values.courier.securityContext | nindent 10 }}
         ports:
         - containerPort: 8080 
           protocol: TCP
@@ -70,23 +70,5 @@ spec:
         - name: BACKEND_URL
           value: http://rapidpro-svc:8080
         resources:
-        {{- toYaml .Values.resources.courier | nindent 10 }}
+        {{- toYaml .Values.courier.resources | nindent 10 }}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: courier-proxy
-  labels:
-    app.kubernetes.io/name: courier-proxy
-    app.kubernetes.io/component: endpoint
-    app.kubernetes.io/part-of: courier
-{{ include "rapidpro-stack.labels" . | indent 4 }}
-spec:
-  selector:
-    app.kubernetes.io/name: courier
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
----
-
