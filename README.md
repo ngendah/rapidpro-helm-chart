@@ -11,13 +11,13 @@ This repo provides a chart to bootstraps RapidPro on a Kubernetes cluster using 
 
 ### Getting started
 
-1. A cluster composed of the following components;
+1. A cluster composed of the following;
 
-    a. Kubernetes cluster
+    a. Kubernetes
 
-    b. A postgresql server and
+    b. postgresql and
 
-    c. a container registry
+    c. container registry
 
 2. Update helm chart values.
 
