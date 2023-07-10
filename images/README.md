@@ -1,7 +1,7 @@
 Build and push images
 -----------------------
 
-### Prerequisites:
+### Pre-requisites:
 
 1. GNU Make
 

@@ -1,7 +1,6 @@
-Provision a local infrastructure using k3d and docker compose
-================================================================
+## Provision a local RapidPro cluster with k3d and docker compose
 
-## Pre-requisites:
+### Pre-requisites:
 
 - [k3d](https://k3d.io/)
 
@@ -13,19 +12,21 @@ Provision a local infrastructure using k3d and docker compose
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
 
-## Steps:
+### Steps:
 
-1. Installation: 
+1. Create a local cluster:
 
-    Execute the script `run.sh`.
+    ```sh 
+      run.sh
+   ````
 
     Options:
 
     - `install` : This will install on the local host the container registry self-signed certificate.
 
-    - `stop` : This will stop and delete all the installed services.
+    - `stop` : This will stop and delete the cluster.
 
-    E.g. To start all services:
+    e.g. To run the cluster:
 
     ```sh
         ./run.sh install
@@ -41,9 +42,9 @@ Provision a local infrastructure using k3d and docker compose
 
     d. Configurations:
 
-        - For the container registry they are located on the directory `registry.conf.d`
+   - For the container registry they are located on the directory `registry.conf.d`
 
-        - For the postgres server they are located on the directory `postgresql.conf.d`
+   - For the postgres server they are located on the directory `postgresql.conf.d`
 
 2. Login to the container registry
 
@@ -62,6 +63,6 @@ With this setup, you can now easily
 
 1. Build and push the images
 
-2. Deploy Rapidpro helm charts
+2. Deploy the RapidPro helm charts
 
 In case of any issues, checkout the github actions file in this repo `.github/workflows`.
