@@ -4,6 +4,7 @@ metadata:
   name: migrations
 spec:
   backoffLimit: 5
+  completions: 10
   template:
     spec:
       restartPolicy: {{ .Values.migrations.restartPolicy }}

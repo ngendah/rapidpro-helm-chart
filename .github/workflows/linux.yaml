@@ -46,12 +46,7 @@ jobs:
       run: |
         registry_conf_d=../infrastructure/local/k3d_compose/registry.conf.d
         echo $(cat $registry_conf_d/passwd) | sudo docker login $(cat $registry_conf_d/hostip) --username $(cat $registry_conf_d/username) --password-stdin;
-        tee registry.json<<EOF
-        {
-          "domain": "$(cat $registry_conf_d/hostip)"
-        }
-        EOF
-        sudo make -j$(nproc --all)
+        sudo make -e BUILD_OPTIONS=--quiet -e REGISTRY_HOST="$(cat $registry_conf_d/hostip)" -j $(nproc --all)
 
     - name: Test, image build and push
       working-directory: ./infrastructure/local/k3d_compose

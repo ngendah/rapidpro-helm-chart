@@ -5,24 +5,29 @@ RapidPro v7 Helm Chart
 
 RapidPro is an open source platform for visually building interactive messaging applications. For more refer to https://github.com/rapidpro/rapidpro.
 
-## Introduction
+### Introduction
 
 This repo provides a chart to bootstraps RapidPro on a Kubernetes cluster using the Helm package manager.
 
-## Getting started:
+### Getting started
 
-1. Provision a Rapidpro cluster.
+1. Provision a RapidPro cluster composed of the following components;
 
-    a. Kubernetes
+    a. Kubernetes cluster
 
-    b. A postgresql server database
+    b. A postgresql server and
 
-    c. A container registry
+    c. a container registry
 
-    To help with this, the repo contains a script to provision the cluster using K3D and Docker compose. It's located in `infrastructure/local/k3d_compose`, refer to its readme to get started on it.
+    The repo contains a script to help quickly provision the RapidPro cluster using K3D and Docker compose.
+    For more refer to `infrastructure/local/k3d_compose/README.md`.
 
-2. Update images container repository url and Helm chart values.
+2. Update helm chart values.
 
-3. Build images and deploy the helm chart.
+3. Deploy the helm chart.
 
-For more details refer to the github actions CI file.
+### Credits
+
+1. [RapidPro](https://github.com/rapidpro/rapidpro) project.
+
+2. [Praekelt.org](https://github.com/praekeltfoundation) for the initial docker base images for [mailroom](https://github.com/praekeltfoundation/mailroom-docker) and [courier](https://github.com/praekeltfoundation/courier-docker).

@@ -1,27 +1,19 @@
 Build and push images
 -----------------------
 
-## Prerquisites:
+### Pre-requisites:
 
-    - make
+1. GNU Make
 
-        on most distro install `build-essentials`
+2. Json Processor, [jq](https://jqlang.github.io/jq/). 
 
-    - jq
+3. Docker
 
-    - docker/podman
+### Steps:
 
-## Steps:
-
-1. Update `registry.json` file with the location of the registry server.
-
-   Note:
-   
-   Login to the registry prior to building the images.
-
-2. Build and push the images
+1. Build and push the images
 
     ```sh
-        make -j3
+        docker login -u <username> <registry host>
+        make -e REGISTRY_HOST="<registry host>" -j 3
     ```
-

@@ -45,7 +45,7 @@ RUN set -ex \
 USER rapidpro
 RUN mkdir app
 RUN set -ex \
-      && export RAPIDPRO_VERSION="v${RAPIDPRO_VERSION:-7.4.0}" \
+      && export RAPIDPRO_VERSION="v${RAPIDPRO_VERSION:-7.4.2}" \
       && export RAPIDPRO_REPO_URL="https://github.com/rapidpro/rapidpro/archive/$RAPIDPRO_VERSION.tar.gz" \
       && echo "Downloading RapidPro $RAPIDPRO_VERSION from $RAPIDPRO_REPO_URL" \
       && wget -q -O rapidpro.tar.gz $RAPIDPRO_REPO_URL \
@@ -53,18 +53,18 @@ RUN set -ex \
       && rm rapidpro.tar.gz \
       && export CRYPTOGRAPHY_DONT_BUILD_RUST=1 \
       && cd app \
-      && mkdir .npm \
-      && npm install \
+      && mkdir .npm
+WORKDIR app
+RUN set -ex && npm install
+RUN set -ex \
+      && poetry remove codecov -G dev --lock \
+      && poetry add celerybeat-redis --lock \
       && poetry install --without dev --sync
-#
-# Not part of the official package distribution
-#
-RUN set -ex poetry add celerybeat-redis 
 
 FROM base-py3.9
 USER root
 RUN set -ex \
-      && apt-get install -y gdal-bin wget postgresql-client
+      && apt-get install -y gdal-bin postgresql-client
 USER rapidpro
 COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/.cache/ .cache/
 COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/.local/ .local/
@@ -72,7 +72,7 @@ COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/bin/ bin/
 COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/app/ app/
 WORKDIR app
 COPY --chown=rapidpro:rapidpro stack/settings.py ./temba
-COPY --chown=rapidpro:rapidpro server.sh celery.sh migrate.sh ./
+COPY --chown=rapidpro:rapidpro scripts/*.sh ./
 EXPOSE 8000 8080
 ENTRYPOINT ["/bin/sh"]
 CMD ["-c", "./server.sh"]
