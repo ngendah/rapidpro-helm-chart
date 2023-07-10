@@ -11,16 +11,13 @@ This repo provides a chart to bootstraps RapidPro on a Kubernetes cluster using 
 
 ### Getting started
 
-1. Provision a RapidPro cluster composed of the following components;
+1. A cluster composed of the following components;
 
     a. Kubernetes cluster
 
     b. A postgresql server and
 
     c. a container registry
-
-    The repo contains a script to help quickly provision the RapidPro cluster using K3D and Docker compose.
-    For more refer to `infrastructure/local/k3d_compose/README.md`.
 
 2. Update helm chart values.
 
