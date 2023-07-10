@@ -72,7 +72,7 @@ COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/bin/ bin/
 COPY --chown=rapidpro:rapidpro --from=build-py3.9 /home/rapidpro/app/ app/
 WORKDIR app
 COPY --chown=rapidpro:rapidpro stack/settings.py ./temba
-COPY --chown=rapidpro:rapidpro server.sh celery.sh migrate.sh ./
+COPY --chown=rapidpro:rapidpro scripts/*.sh ./
 EXPOSE 8000 8080
 ENTRYPOINT ["/bin/sh"]
 CMD ["-c", "./server.sh"]
