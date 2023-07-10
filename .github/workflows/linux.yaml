@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+          submodules: true
 
     - name: Install essentials
       run: |
@@ -37,19 +39,19 @@ jobs:
         sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
     - name: Run servers
-      working-directory: ./infrastructure/local/k3d_compose
+      working-directory: ./extras/cluster
       run: |
         ./run.sh install;
 
     - name: Build images
-      working-directory: ./images
+      working-directory: ./extras/images
       run: |
-        registry_conf_d=../infrastructure/local/k3d_compose/registry.conf.d
+        registry_conf_d=../cluster/registry.conf.d
         echo $(cat $registry_conf_d/passwd) | sudo docker login $(cat $registry_conf_d/hostip) --username $(cat $registry_conf_d/username) --password-stdin;
         sudo make -e BUILD_OPTIONS=--quiet -e REGISTRY_HOST="$(cat $registry_conf_d/hostip)" -j $(nproc --all)
 
     - name: Test, image build and push
-      working-directory: ./infrastructure/local/k3d_compose
+      working-directory: ./extras/cluster
       run: |
         registry_conf_d=./registry.conf.d
         auth=$(echo -n "$(cat $registry_conf_d/username):$(cat $registry_conf_d/passwd)" | base64);
@@ -58,9 +60,9 @@ jobs:
 
     - name: Test Rapidpro Helm installation
       run: |
-        registry_conf_d=./infrastructure/local/k3d_compose/registry.conf.d
-        postgres_conf_d=./infrastructure/local/k3d_compose/postgresql.conf.d
-        kubeconfig=./infrastructure/local/k3d_compose/kubeconfig
+        registry_conf_d=./extras/cluster/registry.conf.d
+        postgres_conf_d=./extras/cluster/postgresql.conf.d
+        kubeconfig=./extras/cluster/kubeconfig
         helm install --kubeconfig=$kubeconfig rapidpro ./rapidpro \
           --set global.registry.host=$(cat $registry_conf_d/hostip) \
           --set global.databaseHost.postgres.host="$(cat $postgres_conf_d/hostip)"
@@ -68,7 +70,7 @@ jobs:
         [ "$count" -gt 1 ]
 
     - name: Clean up
-      working-directory: ./infrastructure/local/k3d_compose
+      working-directory: ./extras/cluster
       run: |
         ./run.sh stop
 
