@@ -1,31 +1,31 @@
 global:
   imagePullSecrets:
     - registry
-  
+
   # Required keys are:
   # ADMIN_USERNAME
   # ADMIN_PASSWORD
   # ADMIN_EMAIL
   adminCredentialsSecret: admin-credentials
-  
+
   # The chart will install a redis server
   # TODO add redis chart as a dependency
   redis:
     url: redis://redis:6379
-  
+
   # Required keys are:
   # POSTGRES_USER
   # POSTGRES_PASSWORD
   # POSTGRES_DB
   databaseCredentialsSecret: database-credentials
-  
+
   databaseHost:
     postgres:
-      host: "172.20.0.3"
+      host: ""
       port: 5432
-  
+
   registry:
-    host: "172.20.0.2"
+    host: ""
 
   labels: {}
   annotations: {}
@@ -42,15 +42,15 @@ mailroom:
   image:
     name: mailroom
     version: v7.4.1
-    pullPolicy: IfNotPresent 
+    pullPolicy: IfNotPresent
   serviceAccountName: rapidpro
   replicaCount: 1
 
 rapidpro:
   image:
     name: rapidpro
-    version: v7.4.0
+    version: v7.4.2
     pullPolicy: Always
   serviceAccountName: rapidpro
   replicaCount: 1
-   
+
