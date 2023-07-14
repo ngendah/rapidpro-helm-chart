@@ -7,4 +7,11 @@ data:
   POSTGRES_HOST: "{{ .Values.global.databaseHost.postgres.host }}"
   POSTGRES_PORT: "{{ .Values.global.databaseHost.postgres.port }}"
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-host
+data:
+  REDIS_URL: "{{ .Values.global.redis.url }}"
+---
 

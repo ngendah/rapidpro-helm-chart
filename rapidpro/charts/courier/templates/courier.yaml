@@ -30,7 +30,7 @@ spec:
         projected:
           sources:
             - configMap:
-                name: courier-nginx 
+                name: courier-nginx
       containers:
       - image: nginx:alpine
         name: proxy
@@ -47,15 +47,15 @@ spec:
         securityContext:
           {{- toYaml .Values.securityContext | nindent 10 }}
         ports:
-        - containerPort: 8080 
+        - containerPort: 8080
           protocol: TCP
         envFrom:
         - configMapRef:
             name: database-host
+        - configMapRef:
+            name: redis-host
         - secretRef:
             name: {{ .Values.global.databaseCredentialsSecret }}
-        - secretRef: 
-            name: redis-connection
         env:
         - name: BACKEND_URL
           value: http://rapidpro-svc:8080

@@ -40,10 +40,10 @@ spec:
         envFrom:
         - configMapRef:
             name: database-host
+        - configMapRef:
+            name: redis-host
         - secretRef:
             name: {{ .Values.global.databaseCredentialsSecret }}
-        - secretRef:
-            name: redis-connection
         env:
         - name: MAILROOM_URL
           value: http://mailroom-svc:8090
