@@ -58,5 +58,5 @@ rapidpro:
   serviceAccountName: rapidpro
   replicaCount: 1
   ingress:
-    className: "nginx"
+    className: ""
 
