@@ -33,11 +33,11 @@ To get started with the helm chart, you'll need;
 
     b. `extras` directory containing,
     
-        * Dockerfiles for building the required images.
-    
-        * A start up script to help quickly setup a cluster with all the necessary services.
+      * Dockerfiles for building the required images.
 
-        * A readme guide to help get started.
+      * A start up script to help quickly setup a cluster with all the necessary services.
+
+      * A readme guide to help get started.
 
     c. `.github/workflows` containing github actions CI file which also serves as an additional guide on how to get started.
 
