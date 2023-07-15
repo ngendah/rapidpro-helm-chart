@@ -27,7 +27,7 @@ To get started with the helm chart, you'll need;
        git clone --recurse-submodules https://github.com/ngendah/rapidpro-helm-chart 
     ```
 
-    The repository has 3 sub-directories;
+    The repository has 2 subdirectories;
 
     a. `rapidpro` directory containing the helm chart,
 
@@ -35,11 +35,68 @@ To get started with the helm chart, you'll need;
     
       * Dockerfiles for building the required images.
 
-      * A start up script to help quickly setup a cluster with all the necessary services.
+      * A start-up script to help quickly set up a cluster with all the necessary services.
 
-      * A readme guide to help get started.
+#### Steps, for a local linux host:
 
-    c. `.github/workflows` containing github actions CI file which also serves as an additional guide on how to get started.
+** At the moment these steps have been verified on an Ubuntu 22.04.
+
+1. Install the following pre-requisites;
+
+   * Docker and Docker Compose
+   * GNU Make
+   * Helm
+   * jq, The JSON processor
+   * K3D
+   * Kubectl 
+
+2.  Stand up a cluster
+
+   ```shell
+   ./extras/cluster/run.sh install
+   ```
+   
+   The cluster will be exposed on the localhost on port 8080.
+   
+3. Login to the Docker registry
+
+   ```shell
+   sudo docker login -u $(cat ./extras/cluster/registry.conf.d/username) $(cat ./extras/cluster/registry.conf.d/hostip)
+   ```
+   
+4. Build and push images
+
+   ```shell
+   cd ./extras/images
+   sudo make -e REGISTRY_HOST=$(cat ../cluster/registry.conf.d/hostip) -j3
+   cd ../.. # change directory back to the project root
+   ```
+   
+5. Export the path to `kubeconfig`
+
+   ```shell
+   export KUBECONFIG=./extras/cluster/kubeconfig 
+   ```
+
+   because relative paths break easily, it's recommended to use the full file path;
+
+   ```shell
+   export KUBECONFIG=$(pwd)/extras/cluster/kubeconfig
+   ```
+
+6.  Install the chart
+
+   ```shell
+   helm install rapidpro ./rapidpro/ --set global.databaseHost.postgres.host=$(cat ./extras/cluster/postgresql.conf.d/hostip) --set global.registry.host=$(cat ./extras/cluster/registry.conf.d/hostip)
+   ```
+   
+7. Wait for the services to be in a running state;
+
+   ```shell
+   watch kubectl get pods
+   ```
+   
+8. If all services are up and running, on the browser goto the url `localhost:8080/`.
 
 ### Credits
 
