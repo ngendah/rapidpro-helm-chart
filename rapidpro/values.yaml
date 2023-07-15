@@ -2,22 +2,26 @@ global:
   imagePullSecrets:
     - registry
 
-  # Required keys are:
-  # ADMIN_USERNAME
-  # ADMIN_PASSWORD
-  # ADMIN_EMAIL
-  adminCredentialsSecret: admin-credentials
+  adminCredentials:
+    name: admin-credentials
+    credentials:
+      create: false
+      user: "temba"
+      password: ""
+      email: ""
 
   # The chart will install a redis server
   # TODO add redis chart as a dependency
   redis:
     url: redis://redis:6379
 
-  # Required keys are:
-  # POSTGRES_USER
-  # POSTGRES_PASSWORD
-  # POSTGRES_DB
-  databaseCredentialsSecret: database-credentials
+  databaseCredentials:
+    name: database-credentials
+    credentials:
+      create: false
+      user: "temba"
+      password: ""
+      database: "temba"
 
   databaseHost:
     postgres:
@@ -53,4 +57,6 @@ rapidpro:
     pullPolicy: Always
   serviceAccountName: rapidpro
   replicaCount: 1
+  ingress:
+    className: "nginx"
 

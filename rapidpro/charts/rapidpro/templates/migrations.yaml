@@ -26,9 +26,9 @@ spec:
         - configMapRef:
             name: redis-host
         - secretRef:
-            name: {{ .Values.global.databaseCredentialsSecret }}
+            name: {{ .Values.global.databaseCredentials.name }}
         - secretRef:
-            name: admin-credentials
+            name: {{ .Values.global.adminCredentials.name }}
         resources:
           {{- toYaml .Values.migrations.resources | nindent 10 }}
 ---

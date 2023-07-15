@@ -80,7 +80,7 @@ spec:
         - configMapRef:
             name: redis-host
         - secretRef:
-            name: {{ .Values.global.databaseCredentialsSecret }}
+            name: {{ .Values.global.databaseCredentials.name }}
         env:
         - name: MAILROOM_URL
           value: http://mailroom-svc:8090

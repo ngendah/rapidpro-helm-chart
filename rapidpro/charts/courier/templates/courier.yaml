@@ -55,7 +55,7 @@ spec:
         - configMapRef:
             name: redis-host
         - secretRef:
-            name: {{ .Values.global.databaseCredentialsSecret }}
+            name: {{ .Values.global.databaseCredentials.name }}
         env:
         - name: BACKEND_URL
           value: http://rapidpro-svc:8080
