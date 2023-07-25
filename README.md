@@ -33,7 +33,7 @@ To get started with the helm chart, you'll need;
 
       * A start-up script to help quickly stand up a cluster with all the necessary services running.
 
-#### Steps
+#### Steps, on the local host
 
     Linux:
 
@@ -69,14 +69,14 @@ To get started with the helm chart, you'll need;
 5.  Login to the Docker registry
 
     ```shell
-    sudo docker login -u $(cat ./extras/cluster/registry.conf.d/username) $(cat ./extras/cluster/registry.conf.d/hostip)
+    docker login -u $(cat ./extras/cluster/registry.conf.d/username) -p $(cat ./extras/cluster/registry.conf.d/passwd) $(cat ./extras/cluster/registry.conf.d/hostip)
     ```
 
 6.  Build and push images
 
     ```shell
     cd ./extras/images
-    sudo make -e REGISTRY_HOST=$(cat ../cluster/registry.conf.d/hostip) -j3
+    make -e REGISTRY_HOST=$(cat ../cluster/registry.conf.d/hostip) -j3
     cd ../.. # change directory back to the project root
     ```
 
@@ -95,7 +95,9 @@ To get started with the helm chart, you'll need;
 8.  Install the chart
 
     ```shell
-    helm install rapidpro ./rapidpro/ --set global.databaseHost.postgres.host=$(cat ./extras/cluster/postgresql.conf.d/hostip) --set global.registry.host=$(cat ./extras/cluster/registry.conf.d/hostip)
+    helm install rapidpro ./rapidpro/ \
+        --set global.databaseHost.postgres.host=$(cat extras/cluster/postgresql.conf.d/hostip) \
+        --set global.registry.host=$(cat ./extras/cluster/registry.conf.d/hostip)
     ```
 
 9.  Wait for the services to be in a running state;

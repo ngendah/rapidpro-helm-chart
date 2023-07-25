@@ -22,7 +22,7 @@ This repo provides a chart to bootstraps RapidPro on a Kubernetes cluster using 
     * mailroom 7.4.1+
 
     Docker files are available in a sub-repository to create these images.
-    These images are unique to this helm chart since they have start-up scripts needed to bootstrap the applications.
+    The images are unique to the helm chart because they have start-up scripts needed to bootstrap each application.
 
 ### Installing the chart
 
