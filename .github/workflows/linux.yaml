@@ -64,8 +64,8 @@ jobs:
         postgres_conf_d=./extras/cluster/postgresql.conf.d
         kubeconfig=./extras/cluster/kubeconfig
         helm install --kubeconfig=$kubeconfig rapidpro ./rapidpro \
-          --set global.registry.host=$(cat $registry_conf_d/hostip) \
-          --set global.databaseHost.postgres.host="$(cat $postgres_conf_d/hostip)"
+            --set global.databaseHost.postgres.host=$(cat extras/cluster/postgresql.conf.d/hostip) \
+            --set global.registry.host=$(cat $registry_conf_d/hostip)
         count=$(kubectl --kubeconfig=$kubeconfig get po --no-headers -oname | wc -l);
         [ "$count" -gt 1 ]
 
