@@ -3,7 +3,7 @@ RapidPro v7 Helm Chart
 
 ![CI Tests](https://github.com/ngendah/rapidpro-k8s/actions/workflows/linux.yaml/badge.svg)
 
-RapidPro is an open source platform for visually building interactive messaging applications. For more on it refer to https://github.com/rapidpro/rapidpro.
+RapidPro is an open source platform for visually building interactive messaging applications. For more on refer to https://community.rapidpro.io/.
 
 ### Introduction
 
@@ -19,7 +19,7 @@ To get started with the helm chart, you'll need;
 
     b. Postgresql version 1.13+ and
 
-    c. a Docker container registry either hosted locally or on the cloud.
+    c. a container image registry either hosted locally or on the cloud.
 
 2. This repository together with it's sub-repository.
 
