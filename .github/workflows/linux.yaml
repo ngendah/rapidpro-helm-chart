@@ -56,7 +56,7 @@ jobs:
         registry_conf_d=./registry.conf.d
         auth=$(echo -n "$(cat $registry_conf_d/username):$(cat $registry_conf_d/passwd)" | base64);
         result=$(curl -sSk -H "Authorization: Basic $auth" https://$(cat $registry_conf_d/hostip)/v2/_catalog | jq '.repositories[]' | wc -l);
-        [ "$result" -eq "5" ]
+        [ "$result" -eq "6" ]
 
     - name: Test Rapidpro Helm installation
       run: |
