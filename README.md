@@ -86,7 +86,7 @@ To get started with the helm chart, you'll need;
     export KUBECONFIG=./extras/cluster/kubeconfig
     ```
 
-    because relative paths break easily, it's recommended to use the full file path;
+    because relative paths break easily, I recommend using full file path;
 
     ```shell
     export KUBECONFIG=$(pwd)/extras/cluster/kubeconfig
